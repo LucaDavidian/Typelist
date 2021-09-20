@@ -1,6 +1,8 @@
 #ifndef TYPELIST_H
 #define TYPELIST_H
 
+#include "../traits/traits.hpp"
+
 /******** typelist definition ********/
 template <typename... Types>
 struct Typelist
@@ -126,8 +128,6 @@ template <typename T, unsigned int N>
 using NthElementT = typename NthElement<T, N>::Type;
 
 /**** find the largest type (useful to allocate storage for variant) ****/
-#include "../traits/traits.hpp"
-
 template <typename T>
 struct LargestType
 {
@@ -201,6 +201,20 @@ struct Length<T, true>
 
 template <typename T>   
 constexpr unsigned int LengthV = Length<T>::Value;
+
+#include <cstddef>
+
+/**** get list length - constexpr function version (C++11) ****/
+template <typename Head, typename... Tail>
+constexpr std::size_t ComputeLength(Typelist<Head, Tail...> const &list)
+{
+    return 1 + ComputeLength(Typelist<Tail...>());
+}
+
+constexpr std::size_t ComputeLength(Typelist<> const &null)
+{
+    return 0;
+}
 
 /**** reverse metafunction returns a reversed typelist ****/
 template <typename T, bool Empty = IsEmpty<T>::Value>
